@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@android:id/background"
+        >
+
+        <shape>
+            <corners android:radius="5dip"/>
+
+            <solid android:color="@color/third"/>
+        </shape>
+
+    </item>
+    <!--采用shape时，clip标签必须添加，表示当前shape是可以被裁剪的-->
+    <item android:id="@android:id/secondaryProgress">
+        <clip>
+            <shape>
+                <corners android:radius="5dip"/>
+
+                <solid android:color="@color/second"/>
+            </shape>
+        </clip>
+    </item>
+    <item
+        android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <corners android:radius="5dip"/>
+
+                <solid android:color="@color/first"/>
+            </shape>
+        </clip>
+    </item>
+</layer-list>
