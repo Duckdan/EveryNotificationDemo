@@ -18,9 +18,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -28,6 +30,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
@@ -99,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.tv_second).setOnClickListener(this);
         findViewById(R.id.tv_third).setOnClickListener(this);
         findViewById(R.id.tv_forth).setOnClickListener(this);
+        ImageView ivRotate = (ImageView) findViewById(R.id.iv_rotate);
+        ivRotate.setImageResource(R.drawable.uc_rotate);
 
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
@@ -217,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int currentIndex = 0;
     private Notification kuGouNotify = null;
     private RemoteViews kuGouContentView = null;
+    private SimpleTarget<Bitmap> simpleTarget = null;
 
     /**
      * 酷狗通知栏---自定义通知栏
@@ -243,22 +250,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             Intent intent = new Intent(this, BActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 100, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+
             kuGouNotify = builder.
                     setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_music)).
                     setSmallIcon(R.drawable.ic_music).
                     setOngoing(true).//设置当前通知栏是否不间断的运行,添加这个之后生成的自定义布局的通知才生效
+                    setOnlyAlertOnce(true).
+                    setCustomContentView(kuGouContentView).
                     setCustomBigContentView(kuGouContentView). //设置折叠的通知栏
                     setContentIntent(pendingIntent).
+                    //悬挂式通知栏，适配乐视上面的折叠通知栏显示不出来
+                    setFullScreenIntent(null, true).
                     build();
         }
 
-        Glide.with(this).asBitmap().load(Uri.parse(musicPictures[currentIndex])).into(new SimpleTarget<Bitmap>() {
-            @Override
-            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                kuGouContentView.setImageViewBitmap(R.id.iv_music, resource);
-                notificationManager.notify(2, kuGouNotify);  //放到此处进行发出通知，使得图片加载成功之后弹出通知
-            }
-        });
+        if (simpleTarget == null) {
+            simpleTarget = new SimpleTarget<Bitmap>() {
+                @Override
+                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                    kuGouContentView.setImageViewBitmap(R.id.iv_music, resource);
+                    notificationManager.notify(2, kuGouNotify);  //放到此处进行发出通知，使得图片加载成功之后弹出通知
+                }
+            };
+        }
+        Glide.with(this).asBitmap().load(Uri.parse(musicPictures[currentIndex])).into(simpleTarget);
 //        notify.bigContentView = contentView;   //该方法在API28已经过时
 
     }

@@ -39,4 +39,9 @@
         android:text="模仿UC通知栏下载进度条"
         android:textColor="@android:color/black"
         android:textSize="24sp" />
+
+    <ImageView
+        android:id="@+id/iv_rotate"
+        android:layout_width="200dp"
+        android:layout_height="200dp" />
 </LinearLayout>
